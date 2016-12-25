@@ -14,12 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.Calendar;
-
-public class MainActivity extends AppCompatActivity implements TimePickerFragment.OnPickTimeListener{
+public class MainActivity extends AppCompatActivity{ //implements TimePickerFragment.OnPickTimeListener{
 
     Button volDownBut, volUpBut, cancelBut;
-    final int downRC=0, upRC=1;
+    final static int downRC=0, upRC=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,24 +82,24 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         newFragment.show(getFragmentManager(), "TimePicker");
     }
 
-    @Override
-    public void returnTime(Calendar value, String setting){
-        setAlarm(value, setting);
-    }
+//    @Override
+//    public void returnTime(Calendar value, String setting){
+//        setAlarm(value, setting);
+//    }
 
     //sets an alarm that triggers at daily intervals
-    public void setAlarm(Calendar value, String setting){
-        Intent intentAlarm = new Intent(this, AlarmReceiver.class);
-        intentAlarm.setAction("com.alison.arwu.autovolume");
-        intentAlarm.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        intentAlarm.putExtra("volume", setting);
-        int rc = setting.equals("down")? downRC : upRC;
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, rc, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setInexactRepeating(AlarmManager.RTC, value.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-        Toast.makeText(this, "Alarm scheduled with setting "+setting, Toast.LENGTH_LONG).show();
-    }
+//    public void setAlarm(Calendar value, String setting){
+//        Intent intentAlarm = new Intent(this, AlarmReceiver.class);
+//        intentAlarm.setAction("com.alison.arwu.autovolume");
+//        intentAlarm.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+//        intentAlarm.putExtra("volume", setting);
+//        int rc = setting.equals("down")? downRC : upRC;
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, rc, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        am.setInexactRepeating(AlarmManager.RTC, value.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+//        Toast.makeText(this, "Alarm scheduled with setting "+setting, Toast.LENGTH_LONG).show();
+//    }
 
     public void cancelAlarm(View view) {
         AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
