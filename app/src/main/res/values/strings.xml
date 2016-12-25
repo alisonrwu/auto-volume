@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Auto Volume</string>
     <string name="action_settings">Settings</string>
-    <string name="displayText">Choose a time to</string>
-    <string name="buttonText">Schedule Volume Down</string>
+    <string name="quieterText">When do you want the volume quieter?</string>
+    <string name="louderText">When do you want the volume louder?</string>
+    <string name="volumeDown">Schedule Volume Down</string>
+    <string name="volumeUp">Schedule Volume Up</string>
+    <string name="cancelAll">Cancel All</string>
 </resources>

@@ -18,7 +18,8 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements TimePickerFragment.OnPickTimeListener{
 
-    Button alarmBut;
+    Button volDownBut, volUpBut, cancelBut;
+    final int downRC=0, upRC=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,14 +29,28 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         setSupportActionBar(toolbar);
 
         //could just add android:onClick in xml
-        alarmBut = (Button) findViewById(R.id.alarmButton);
-        View.OnClickListener alarmButLis = new View.OnClickListener() {
+        volDownBut = (Button) findViewById(R.id.volumeDownBut);
+        volUpBut = (Button) findViewById(R.id.volumeUpBut);
+        cancelBut = (Button) findViewById(R.id.cancelAllBut);
+
+        volDownBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pickTime(view);
+                pickTime(view, "down");
             }
-        };
-        alarmBut.setOnClickListener(alarmButLis);
+        });
+        volUpBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime(view, "up");
+            }
+        });
+        cancelBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelAlarm(view);
+            }
+        });
     }
 
     @Override
@@ -60,57 +75,42 @@ public class MainActivity extends AppCompatActivity implements TimePickerFragmen
         return super.onOptionsItemSelected(item);
     }
 
-    private void pickTime(View v){
+    //opens time picker fragment
+    private void pickTime(View v, String setting){
         DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(),"TimePicker");
+        Bundle args = new Bundle();
+        args.putString("volume", setting);
+        newFragment.setArguments(args);
+        newFragment.show(getFragmentManager(), "TimePicker");
     }
 
     @Override
-    public void returnTime(Calendar value){
-        Toast.makeText(this, "returnTime: "+ value, Toast.LENGTH_LONG).show();
-        setAlarm(value);
+    public void returnTime(Calendar value, String setting){
+        setAlarm(value, setting);
     }
 
-    public void setAlarm(Calendar value){
-        // time at which alarm will be scheduled here alarm is scheduled at 1 day from current time,
-        // we fetch  the current time in milliseconds and added 1 day time
-        // i.e. 24*60*60*1000= 86,400,000   milliseconds in a day
-//        Long time = new GregorianCalendar().getTimeInMillis()+24*60*60*1000;
-
-        // create an Intent and set the class which will execute when Alarm triggers, here we have
-        // given AlarmReciever in the Intent, the onRecieve() method of this class will execute when
-        // alarm triggers and
-        // we will write the code to change audio inside onRecieve() method of AlarmReciever class
+    //sets an alarm that triggers at daily intervals
+    public void setAlarm(Calendar value, String setting){
         Intent intentAlarm = new Intent(this, AlarmReceiver.class);
+        intentAlarm.setAction("com.alison.arwu.autovolume");
+        intentAlarm.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intentAlarm.putExtra("volume", setting);
+        int rc = setting.equals("down")? downRC : upRC;
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, rc, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // create the object
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        //set the alarm for particular time
-//        alarmManager.set(AlarmManager.RTC_WAKEUP,value, PendingIntent.getBroadcast(this, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
-        alarmManager.setInexactRepeating(AlarmManager.RTC, value.getTimeInMillis(), AlarmManager.INTERVAL_DAY, PendingIntent.getBroadcast(this, 1, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
-        Toast.makeText(this, "Alarm Scheduled for "+value, Toast.LENGTH_LONG).show();
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        am.setInexactRepeating(AlarmManager.RTC, value.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        Toast.makeText(this, "Alarm scheduled with setting "+setting, Toast.LENGTH_LONG).show();
     }
 
-
-
-//    private void scheduleNotification(Notification notification, int delay) {
-//        Intent notificationIntent = new Intent(this, com.alison.arwu.autovolume.NotificationPublisher.class);
-//        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
-//        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        long futureInMillis = SystemClock.elapsedRealtime() + delay;
-//        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-//    }
-//
-//    private Notification getNotification(String content) {
-//        Notification.Builder builder = new Notification.Builder(this);
-//        builder.setContentTitle("Scheduled Notification");
-//        builder.setContentText(content);
-//        builder.setSmallIcon(R.mipmap.ic_launcher);
-//        timeText.setText(content);
-//        return builder.build();
-//    }
+    public void cancelAlarm(View view) {
+        AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(this, AlarmReceiver.class);
+        i.setAction("com.alison.arwu.autovolume");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, downRC, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.cancel(pendingIntent);
+        pendingIntent = PendingIntent.getBroadcast(this, upRC, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.cancel(pendingIntent);
+        Toast.makeText(this, "Alarm canceled", Toast.LENGTH_SHORT).show();
+    }
 }

@@ -19,18 +19,21 @@ import java.util.Calendar;
  */
 public class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
+    String setting; //error!!!
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mCallback = (OnPickTimeListener) context;
     }
-    public interface OnPickTimeListener{
-        public void returnTime(Calendar value);
+    public interface OnPickTimeListener {
+        public void returnTime(Calendar value, String setting);
     }
     OnPickTimeListener mCallback;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        setting = getArguments().getString("volume");
         //Use the current time as the default values for the time picker
         final Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR_OF_DAY);
@@ -41,11 +44,11 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
                 this, hour, minute, DateFormat.is24HourFormat(getActivity()));
 
         //You can set a simple text title for TimePickerDialog
-        //tpd.setTitle("Title Of Time Picker Dialog");
+//        tpd.setTitle("When do you want the volume "+setting+"?");
 
         /*.........Set a custom title for picker........*/
         TextView tvTitle = new TextView(getActivity());
-        tvTitle.setText("When do you want to change the volume?");
+        tvTitle.setText("When do you want the volume "+setting+"?");
         tvTitle.setBackgroundColor(Color.parseColor("#76D7C4"));
         tvTitle.setPadding(20, 12, 20, 12);
         tvTitle.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -59,7 +62,13 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
         //Do something with the user chosen time
         //Get reference of host activity (XML Layout File) TextView widget
-        TextView tv = (TextView) getActivity().findViewById(R.id.displayText);
+        TextView tv = null;
+        if(setting.equals("down")) {
+            tv = (TextView) getActivity().findViewById(R.id.volumeDownText);
+        } else if(setting.equals("up")) {
+            tv = (TextView) getActivity().findViewById(R.id.volumeUpText);
+        }
+
         //Set a message for user
 
         //Get the AM or PM for current time
@@ -69,25 +78,23 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
 
         //Make the 24 hour time format to 12 hour time format
         int currentHour;
-        if(hourOfDay>11)
+        if(hourOfDay>11) {
             currentHour = hourOfDay - 12;
-        else
+        } else {
             currentHour = hourOfDay;
-
-        tv.setText("Your chosen time is...\n\n");
-        //Display the user changed time on TextView
-        tv.setText(tv.getText()+ String.valueOf(currentHour)
-                + ":" + String.valueOf(minute) + " " + amORpm + "\n");
-
-        if(mCallback!=null)
-        {
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            cal.set(Calendar.MINUTE, minute);
-
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        cal.set(Calendar.MINUTE, minute);
+        if(tv != null) {
+            tv.setText("Your chosen time is...\n\n");
+            //Display the user changed time on TextView
+            tv.setText(tv.getText() + String.valueOf(currentHour)
+                    + ":" + String.valueOf(minute) + " " + amORpm + "\n");
             tv.setText(tv.getText()+ cal.getTime().toString());
-
-            mCallback.returnTime(cal);
+        }
+        if(mCallback!=null) {
+            mCallback.returnTime(cal, setting);
         }
     }
 }

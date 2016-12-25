@@ -11,21 +11,48 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.alison.arwu.autovolume.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:showIn="@layout/activity_main"
+    android:orientation="vertical">
 
     <TextView
+        android:id="@+id/volumeDownText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/displayText"
-        android:id="@+id/displayText" />
+        android:text="@string/quieterText"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:id="@+id/volumeDownBut"
+        android:layout_marginTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/volumeDown"
+        android:layout_below="@+id/volumeDownText"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/volumeUpText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/louderText"
+        android:layout_below="@+id/volumeDownBut"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+    <Button
+        android:id="@+id/volumeUpBut"
+        android:layout_marginTop="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/volumeUp"
+        android:layout_below="@+id/volumeUpText"
+        android:layout_centerHorizontal="true" />
 
     <Button
-        android:id="@+id/alarmButton"
-        android:layout_marginTop="80dp"
+        android:id="@+id/cancelAllBut"
+        android:text="@string/cancelAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/buttonText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
